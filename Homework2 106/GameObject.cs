@@ -10,7 +10,13 @@ namespace Homework2_106
 {
 	class GameObject
 	{
+		/// <summary>
+		/// The image of the GameObject
+		/// </summary>
 		protected Texture2D texture;
+		/// <summary>
+		/// The position and size of the GameObject
+		/// </summary>
 		protected Rectangle position;
 
 		/// <summary>
