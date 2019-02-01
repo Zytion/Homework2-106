@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 
 namespace Homework2_106
 {
@@ -15,6 +17,17 @@ namespace Homework2_106
 		SpriteBatch spriteBatch;
 
 		GameState gameState;
+        Player player;
+        List<Collectible> collectibles;
+        int level = 0;
+        KeyboardState kbState;
+        KeyboardState previousKBState;
+        float timer;
+
+        Texture2D collectableTexture;
+        Texture2D playerTexture;
+
+        Random rnd = new Random();
 
 		public Game1()
 		{
@@ -44,8 +57,12 @@ namespace Homework2_106
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// TODO: use this.Content to load your game content here
-		}
+            // TODO: use this.Content to load your game content here
+            playerTexture = Content.Load<Texture2D>("terrariaguide");
+
+            collectableTexture = Content.Load<Texture2D>("coin");
+
+        }
 
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
@@ -91,5 +108,35 @@ namespace Homework2_106
 
 			base.Draw(gameTime);
 		}
+
+        public void NextLevel()
+        {
+            level++;
+            timer = 10;
+            player.LevelScore = level;
+            player.X = GraphicsDevice.Viewport.Width / 2;
+            player.Y = GraphicsDevice.Viewport.Height / 2;
+            collectibles = new List<Collectible>(rnd.Next(3, 7 + level));
+            for(int i = 0; i < collectibles.Capacity; i++)
+            {
+                collectibles.Add(new Collectible(collectableTexture, new Rectangle(rnd.Next(300), rnd.Next(300), 25, 25)));
+            }
+        }
+
+        public void ResetGame()
+        {
+            level = 0;
+            player.TotalScore = 0;
+            NextLevel();
+        }
+
+        public void ScreeenWrap(GameObject objToWrap)
+        {
+            if (objToWrap.X == GraphicsDevice.Viewport.X)
+                objToWrap.X = GraphicsDevice.Viewport.Width - objToWrap.Position.Width;
+
+            if (objToWrap.X == GraphicsDevice.Viewport.Width)
+                objToWrap.X = GraphicsDevice.Viewport.X;
+        }
 	}
 }

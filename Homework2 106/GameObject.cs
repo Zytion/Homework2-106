@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Homework2_106
 {
-	class GameObject
+	public class GameObject
 	{
 		/// <summary>
 		/// The image of the GameObject
