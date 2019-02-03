@@ -17,17 +17,20 @@ namespace Homework2_106
 		SpriteBatch spriteBatch;
 
 		GameState gameState;
-        Player player;
-        List<Collectible> collectibles;
-        int level = 0;
-        KeyboardState kbState;
-        KeyboardState previousKBState;
-        float timer;
+		Player player;
+		List<Collectible> collectibles;
+		int level = 0;
+		KeyboardState kbState;
+		KeyboardState previousKBState;
+		float timer;
+		bool allCollectablesFound;
 
-        Texture2D collectableTexture;
-        Texture2D playerTexture;
+		Texture2D collectableTexture;
+		SpriteFont font;
 
-        Random rnd = new Random();
+		Random rnd = new Random();
+		private int playerSize = 4;
+		private int playerSpeed = 2;
 
 		public Game1()
 		{
@@ -44,7 +47,10 @@ namespace Homework2_106
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
-
+			player = new Player(null, null, new Rectangle(20, 20, 10, 10));
+			collectibles = new List<Collectible>();
+			gameState = GameState.Menu;
+			timer = 15;
 			base.Initialize();
 		}
 
@@ -57,12 +63,17 @@ namespace Homework2_106
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
-            playerTexture = Content.Load<Texture2D>("terrariaguide");
+			// TODO: use this.Content to load your game content here
+			player.Texture = Content.Load<Texture2D>("terrariaguide");
+			player.FlippedImgage = Content.Load<Texture2D>("terrariaguideleft");
+			player.Rectangle = new Rectangle(player.X, player.Y, 10 * playerSize, 12 * playerSize);
+			
 
-            collectableTexture = Content.Load<Texture2D>("coin");
+			collectableTexture = Content.Load<Texture2D>("coin");
 
-        }
+			font = Content.Load<SpriteFont>("aria");
+
+		}
 
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
@@ -83,14 +94,70 @@ namespace Homework2_106
 			if(GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
-			KeyboardState keyboard = Keyboard.GetState();
+			previousKBState = kbState;
+			kbState = Keyboard.GetState();
 
-			if(gameState == GameState.Menu && keyboard.IsKeyDown(Keys.Enter))
+			//If you press enter on the Main menu...
+			if(gameState == GameState.Menu && kbState.IsKeyDown(Keys.Enter))
+			{
+				//...Start the game
+				ResetGame();
 				gameState = GameState.Game;
-			else if(gameState == GameState.GameOver && keyboard.IsKeyDown(Keys.Enter))
+			}
+
+			//If the game is over and you press enter...
+			else if(gameState == GameState.GameOver && kbState.IsKeyDown(Keys.Enter))
+				//...go to the main menu
 				gameState = GameState.Menu;
-			//else if()	//Timer runs out
-			//gameState = GameState.GameOver;
+
+			//End game when timer runs out
+			else if(timer <= 0)
+				gameState = GameState.GameOver;
+
+			//When game is running...
+			else if(gameState == GameState.Game)
+			{
+
+				//...Count down the timer
+				timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+				
+				//...Move player based on input
+				if(kbState.IsKeyDown(Keys.A))
+				{
+					player.X -= playerSpeed;
+					player.FacingLeft = true;
+				}
+				else if(kbState.IsKeyDown(Keys.D))
+				{
+					player.X += playerSpeed;
+					player.FacingLeft = false;
+				}
+				if(kbState.IsKeyDown(Keys.W))
+					player.Y -= playerSpeed;
+				else if(kbState.IsKeyDown(Keys.S))
+					player.Y += playerSpeed;
+
+
+				allCollectablesFound = true;
+
+				//Check for collectible collions
+				foreach(Collectible collectible in collectibles)
+				{
+					if(collectible.CheckCollision(player))
+					{
+						collectible.Active = false;
+						player.LevelScore += 1;
+					}
+
+					if(collectible.Active)
+						allCollectablesFound = false;
+				}
+				//If none of the collectables are active, start the next level
+				if(allCollectablesFound)
+					NextLevel();
+
+				ScreeenWrap(player);
+			}
 
 
 			base.Update(gameTime);
@@ -102,41 +169,111 @@ namespace Homework2_106
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			// TODO: Add your drawing code here
+
+			spriteBatch.Begin();
+
+			switch(gameState)
+			{
+				//GraphicsDevice.Viewport.(Width/Height) gets the size of the window
+				//font.MesaureString(string) gets a Vector2D of the pixel size of the text
+				//Dividing these by 2 centers the text
+				case GameState.Menu:
+					//Menu Text
+					spriteBatch.DrawString(font,
+					"Press Enter to Start",
+					new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Press Enter to Start").X )/ 2,
+					(GraphicsDevice.Viewport.Height - font.MeasureString("Press Enter to Start").Y) / 2),
+					Color.White);
+					break;
+
+				case GameState.GameOver:
+					//Game over text and total score
+					spriteBatch.DrawString(font,
+					"Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level,
+					new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level).X) / 2,
+					(GraphicsDevice.Viewport.Height - font.MeasureString("Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level).Y) / 2),
+					Color.White);
+
+					//Instructions
+					spriteBatch.DrawString(font,
+						"Press enter to go back to main menu",
+						new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Press enter to go back to main menu").X) / 2,
+						(GraphicsDevice.Viewport.Height - font.MeasureString("Game Over").Y)),
+						Color.White);
+					break;
+
+				case GameState.Game:
+					//Draw all the collectables
+					foreach(Collectible collectible in collectibles)
+					{
+						collectible.Draw(spriteBatch);
+					}
+					//Draw the player
+					player.Draw(spriteBatch);
+
+					//Draw the level text
+					spriteBatch.DrawString(font, "Level: " + level + "\nTime: " + (string.Format("{0:0.00}", timer)), Vector2.Zero, Color.White);
+					spriteBatch.DrawString(font, "Score: " + player.LevelScore, 
+						new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Score: " + player.TotalScore).X) / 2, 0), Color.White);
+					break;
+			}
+
+			spriteBatch.End();
 
 			base.Draw(gameTime);
 		}
 
-        public void NextLevel()
-        {
-            level++;
-            timer = 10;
-            player.LevelScore = level;
-            player.X = GraphicsDevice.Viewport.Width / 2;
-            player.Y = GraphicsDevice.Viewport.Height / 2;
-            collectibles = new List<Collectible>(rnd.Next(3, 7 + level));
-            for(int i = 0; i < collectibles.Capacity; i++)
-            {
-                collectibles.Add(new Collectible(collectableTexture, new Rectangle(rnd.Next(300), rnd.Next(300), 25, 25)));
-            }
-        }
+		/// <summary>
+		/// Resets the player, creates new collectables, and increases the level count
+		/// </summary>
+		void NextLevel()
+		{
+			allCollectablesFound = false;
+			level++;
+			timer = 15;
+			player.TotalScore += player.LevelScore;
+			player.LevelScore = 0;
+			player.X = (GraphicsDevice.Viewport.Width - player.Rectangle.Width) / 2;
+			player.Y = (GraphicsDevice.Viewport.Height - player.Rectangle.Width) / 2;
 
-        public void ResetGame()
-        {
-            level = 0;
-            player.TotalScore = 0;
-            NextLevel();
-        }
+			collectibles = new List<Collectible>(rnd.Next(5, 7) + level);
 
-        public void ScreeenWrap(GameObject objToWrap)
-        {
-            if (objToWrap.X == GraphicsDevice.Viewport.X)
-                objToWrap.X = GraphicsDevice.Viewport.Width - objToWrap.Position.Width;
+			for(int i = 0; i < collectibles.Capacity; i++)
+			{
+				collectibles.Add(new Collectible(collectableTexture,
+					new Rectangle(rnd.Next(GraphicsDevice.Viewport.Width - 30), rnd.Next(GraphicsDevice.Viewport.Height - 30), 25, 25)));
+			}
+		}
 
-            if (objToWrap.X == GraphicsDevice.Viewport.Width)
-                objToWrap.X = GraphicsDevice.Viewport.X;
-        }
+		void ResetGame()
+		{
+			level = 0;
+			player.TotalScore = 0;
+			NextLevel();
+		}
+
+		void ScreeenWrap(GameObject objToWrap)
+		{
+			if(objToWrap.X == GraphicsDevice.Viewport.X)
+				objToWrap.X = GraphicsDevice.Viewport.Width - objToWrap.Rectangle.Width;
+
+			if(objToWrap.X == GraphicsDevice.Viewport.Width)
+				objToWrap.X = GraphicsDevice.Viewport.X;
+
+			if(objToWrap.Y == GraphicsDevice.Viewport.Y)
+				objToWrap.Y = GraphicsDevice.Viewport.Height - objToWrap.Rectangle.Height;
+
+			if(objToWrap.Y == GraphicsDevice.Viewport.Height)
+				objToWrap.Y = GraphicsDevice.Viewport.Y;
+		}
+
+		bool SingleKeyPress(Keys key)
+		{
+			return (kbState.IsKeyDown(key) && !previousKBState.IsKeyDown(key));
+
+		}
 	}
 }
