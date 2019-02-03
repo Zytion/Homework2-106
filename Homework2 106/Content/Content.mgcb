@@ -13,6 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin aria.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:aria.spritefont
+
 #begin coin.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -36,4 +43,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:terrariaguide.png
+
+#begin terrariaguideleft.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:terrariaguideleft.png
 
