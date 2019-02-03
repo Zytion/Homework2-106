@@ -32,7 +32,7 @@ namespace Homework2_106
 		public bool CheckCollision(GameObject check)
 		{
 			if(Active)
-				return position.Intersects(check.Position);
+				return rectangle.Intersects(check.Rectangle);
 
 			return false;
 		}

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Homework2_106
 {
-	public class GameObject
+	class GameObject
 	{
 		/// <summary>
 		/// The image of the GameObject
@@ -17,7 +17,7 @@ namespace Homework2_106
 		/// <summary>
 		/// The position and size of the GameObject
 		/// </summary>
-		protected Rectangle position;
+		protected Rectangle rectangle;
 
 		/// <summary>
 		/// An Object storing an image, it's size, and position (in a rectangle object)
@@ -27,7 +27,7 @@ namespace Homework2_106
 		public GameObject(Texture2D texture, Rectangle rectangle)
 		{
 			this.texture = texture;
-			this.position = rectangle;
+			this.rectangle = rectangle;
 		}
 
 		/// <summary>
@@ -37,17 +37,17 @@ namespace Homework2_106
 		/// <summary>
 		/// Rectangle storing the position and size of the object
 		/// </summary>
-		public Rectangle Position { get { return position; } set { position = value;} }
+		public Rectangle Rectangle { get { return rectangle; } set { rectangle = value;} }
 
 		/// <summary>
 		/// The x coordinate of the top-left of this Object
 		/// </summary>
 		public int X
 		{
-			get { return position.X; }
+			get { return rectangle.X; }
 			set
 			{
-				position.Location = new Point(value, position.Y);
+				rectangle.Location = new Point(value, rectangle.Y);
 			}
 		}
 		/// <summary>
@@ -55,16 +55,20 @@ namespace Homework2_106
 		/// </summary>
 		public int Y
 		{
-			get { return position.Y; }
+			get { return rectangle.Y; }
 			set
 			{
-				position.Location = new Point(position.X, value);
+				rectangle.Location = new Point(rectangle.X, value);
 			}
 		}
 
+		/// <summary>
+		/// Draws the GameObject
+		/// </summary>
+		/// <param name="sb"></param>
 		public virtual void Draw(SpriteBatch sb)
 		{
-			sb.Draw(texture, position, Color.White);
+			sb.Draw(texture, rectangle, Color.White);
 		}
 	}
 }
