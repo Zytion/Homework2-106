@@ -34,9 +34,13 @@ namespace Homework2_106
 		bool allCollectablesFound;
 
 		Texture2D collectableTexture;
+
 		SpriteFont font;
 
-		Random rnd = new Random();
+        Texture2D enemyTexture;
+        List<Enemy> enemies;
+
+        Random rnd = new Random();
         /// <summary> Modifies the size of the player </summary>
 		private int playerSize = 4;
         /// <summary> Modifies the speed of the player </summary>
@@ -59,7 +63,8 @@ namespace Homework2_106
 			// TODO: Add your initialization logic here
 			player = new Player(null, null, new Rectangle(20, 20, 10, 10));
 			collectibles = new List<Collectible>();
-			gameState = GameState.Menu;
+            enemies = new List<Enemy>();
+            gameState = GameState.Menu;
 			timer = 15;
 			base.Initialize();
 		}
@@ -76,8 +81,8 @@ namespace Homework2_106
 			player.Texture = Content.Load<Texture2D>("terrariaguide");
 			player.FlippedImgage = Content.Load<Texture2D>("terrariaguideleft");
 			player.Rectangle = new Rectangle(player.X, player.Y, 10 * playerSize, 12 * playerSize);
-			
 
+            enemyTexture = Content.Load<Texture2D>("slime");
 			collectableTexture = Content.Load<Texture2D>("coin");
 
 			font = Content.Load<SpriteFont>("aria");
@@ -167,6 +172,13 @@ namespace Homework2_106
 					NextLevel();
                 //Check to screen wrap player
 				ScreenWrap(player);
+
+                foreach(Enemy enemy in enemies)
+                {
+                    enemy.CheckCollision(player);
+                    enemy.Move(rnd);
+                    ScreenWrap(enemy);
+                }
 			}
 
 			base.Update(gameTime);
@@ -213,6 +225,12 @@ namespace Homework2_106
 					break;
 
 				case GameState.Game:
+                    //Draw all the enemies
+                    foreach(Enemy enemy in enemies)
+                    {
+                        enemy.Draw(spriteBatch);
+                    }
+
 					//Draw all the collectables
 					foreach(Collectible collectible in collectibles)
 					{
@@ -253,6 +271,14 @@ namespace Homework2_106
 				collectibles.Add(new Collectible(collectableTexture,
 					new Rectangle(rnd.Next(GraphicsDevice.Viewport.Width - 30), rnd.Next(GraphicsDevice.Viewport.Height - 30), 25, 25)));
 			}
+
+            enemies.Clear();
+            int enemyNumber = rnd.Next(level) + (level/2);
+            for(int i = 0; i < enemyNumber; i++)
+            {
+                enemies.Add(new Enemy(enemyTexture,
+                    new Rectangle(rnd.Next(GraphicsDevice.Viewport.Width - 50), rnd.Next(GraphicsDevice.Viewport.Height - 50), 45, 35), rnd.Next(3), 15));
+            }
 		}
 
         /// <summary>
