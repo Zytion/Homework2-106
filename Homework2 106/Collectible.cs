@@ -36,7 +36,10 @@ namespace Homework2_106
 
 			return false;
 		}
-
+        /// <summary>
+        /// Draws the collectable only if it is active
+        /// </summary>
+        /// <param name="sb"></param>
 		public override void Draw(SpriteBatch sb)
 		{
 			if(Active)

@@ -16,20 +16,30 @@ namespace Homework2_106
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
+        /// <summary> The current state of the game </summary>
 		GameState gameState;
+        /// <summary> The player </summary>
 		Player player;
+        /// <summary> A list storing all the collectibles on the level </summary>
 		List<Collectible> collectibles;
+        /// <summary> Current level </summary>
 		int level = 0;
+        /// <summary> Current keyboard output </summary>
 		KeyboardState kbState;
+        /// <summary> Keyboard output of the previous frame </summary>
 		KeyboardState previousKBState;
+        /// <summary> The game time </summary>
 		float timer;
+        /// <summary> Has the player found all the collectables </summary>
 		bool allCollectablesFound;
 
 		Texture2D collectableTexture;
 		SpriteFont font;
 
 		Random rnd = new Random();
+        /// <summary> Modifies the size of the player </summary>
 		private int playerSize = 4;
+        /// <summary> Modifies the speed of the player </summary>
 		private int playerSpeed = 2;
 
 		public Game1()
@@ -63,7 +73,6 @@ namespace Homework2_106
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// TODO: use this.Content to load your game content here
 			player.Texture = Content.Load<Texture2D>("terrariaguide");
 			player.FlippedImgage = Content.Load<Texture2D>("terrariaguideleft");
 			player.Rectangle = new Rectangle(player.X, player.Y, 10 * playerSize, 12 * playerSize);
@@ -94,6 +103,7 @@ namespace Homework2_106
 			if(GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
+            //Updates Keyboard states
 			previousKBState = kbState;
 			kbState = Keyboard.GetState();
 
@@ -155,10 +165,9 @@ namespace Homework2_106
 				//If none of the collectables are active, start the next level
 				if(allCollectablesFound)
 					NextLevel();
-
-				ScreeenWrap(player);
+                //Check to screen wrap player
+				ScreenWrap(player);
 			}
-
 
 			base.Update(gameTime);
 		}
@@ -170,8 +179,6 @@ namespace Homework2_106
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.Black);
-
-			// TODO: Add your drawing code here
 
 			spriteBatch.Begin();
 
@@ -232,14 +239,14 @@ namespace Homework2_106
 		void NextLevel()
 		{
 			allCollectablesFound = false;
-			level++;
-			timer = 15;
-			player.TotalScore += player.LevelScore;
-			player.LevelScore = 0;
-			player.X = (GraphicsDevice.Viewport.Width - player.Rectangle.Width) / 2;
+			level++;    //Increment the level
+			timer = 15; //Reset the timer
+			player.TotalScore += player.LevelScore; //Add level score to total
+			player.LevelScore = 0;  //Reset level score
+			player.X = (GraphicsDevice.Viewport.Width - player.Rectangle.Width) / 2;    //Center the player
 			player.Y = (GraphicsDevice.Viewport.Height - player.Rectangle.Width) / 2;
 
-			collectibles = new List<Collectible>(rnd.Next(5, 7) + level);
+			collectibles = new List<Collectible>(rnd.Next(5, 7) + level);   //Generate new colletables
 
 			for(int i = 0; i < collectibles.Capacity; i++)
 			{
@@ -248,6 +255,9 @@ namespace Homework2_106
 			}
 		}
 
+        /// <summary>
+        /// Sets level and total score to 0 and starts up at level 1
+        /// </summary>
 		void ResetGame()
 		{
 			level = 0;
@@ -255,7 +265,11 @@ namespace Homework2_106
 			NextLevel();
 		}
 
-		void ScreeenWrap(GameObject objToWrap)
+        /// <summary>
+        /// Checks to see if the GameObject is outside the boundries and sets it position to the other side of the screen
+        /// </summary>
+        /// <param name="objToWrap"></param>
+		void ScreenWrap(GameObject objToWrap)
 		{
 			if(objToWrap.X == GraphicsDevice.Viewport.X)
 				objToWrap.X = GraphicsDevice.Viewport.Width - objToWrap.Rectangle.Width;

@@ -29,6 +29,12 @@ namespace Homework2_106
 		/// </summary>
 		public Texture2D FlippedImgage { get { return flipedImage; } set { flipedImage = value; } }
 
+        /// <summary>
+        /// A player with a texture, a horizontal reflection of that texture, and the rectangle of that character.
+        /// </summary>
+        /// <param name="flipedImage"></param>
+        /// <param name="texture"></param>
+        /// <param name="rectangle"></param>
 		public Player(Texture2D flipedImage, Texture2D texture, Rectangle rectangle) : base (texture, rectangle)
 		{
 			LevelScore = 0;
@@ -36,8 +42,11 @@ namespace Homework2_106
 			FacingLeft = false;
 			this.flipedImage = flipedImage;
 		}
-
-		public override void Draw(SpriteBatch sb)
+        /// <summary>
+        /// Draws the player facing right or left
+        /// </summary>
+        /// <param name="sb"></param>
+        public override void Draw(SpriteBatch sb)
 		{
 			if(FacingLeft)
 				sb.Draw(flipedImage, rectangle, Color.White);
