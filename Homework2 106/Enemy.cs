@@ -32,17 +32,22 @@ namespace Homework2_106
 
         public void Move(Random rnd)
         {
-            switch(MoveType)
+            switch (MoveType)
             {
                 case 0:
-                    if (rnd.Next(1) == 0)
-                        X += 1;
+                    if (moveDely > 1)
+                    {
+                            if (rnd.Next(1) == 0)
+                                X += 1;
+                            else
+                                X -= 1;
+                            if (rnd.Next(1) == 0)
+                                Y += 1;
+                            else
+                                Y -= 1;
+                    }
                     else
-                        X -= 1;
-                    if (rnd.Next(1) == 0)
-                        Y += 1;
-                    else
-                        Y -= 1;
+                        moveDely++;
                     break;
                 case 1:
                     X += 2;

@@ -175,7 +175,10 @@ namespace Homework2_106
 
                 foreach(Enemy enemy in enemies)
                 {
-                    enemy.CheckCollision(player);
+                    if(enemy.CheckCollision(player))
+                    {
+                        gameState = GameState.GameOver;
+                    }
                     enemy.Move(rnd);
                     ScreenWrap(enemy);
                 }
@@ -297,16 +300,16 @@ namespace Homework2_106
         /// <param name="objToWrap"></param>
 		void ScreenWrap(GameObject objToWrap)
 		{
-			if(objToWrap.X == GraphicsDevice.Viewport.X)
+			if(objToWrap.X <= GraphicsDevice.Viewport.X)
 				objToWrap.X = GraphicsDevice.Viewport.Width - objToWrap.Rectangle.Width;
 
-			if(objToWrap.X == GraphicsDevice.Viewport.Width)
+			if(objToWrap.X >= GraphicsDevice.Viewport.Width)
 				objToWrap.X = GraphicsDevice.Viewport.X;
 
-			if(objToWrap.Y == GraphicsDevice.Viewport.Y)
+			if(objToWrap.Y <= GraphicsDevice.Viewport.Y)
 				objToWrap.Y = GraphicsDevice.Viewport.Height - objToWrap.Rectangle.Height;
 
-			if(objToWrap.Y == GraphicsDevice.Viewport.Height)
+			if(objToWrap.Y >= GraphicsDevice.Viewport.Height)
 				objToWrap.Y = GraphicsDevice.Viewport.Y;
 		}
 
