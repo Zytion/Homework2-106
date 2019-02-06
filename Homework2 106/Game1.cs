@@ -113,7 +113,7 @@ namespace Homework2_106
 			kbState = Keyboard.GetState();
 
 			//If you press enter on the Main menu...
-			if(gameState == GameState.Menu && kbState.IsKeyDown(Keys.Enter))
+			if(gameState == GameState.Menu && SingleKeyPress(Keys.Enter))
 			{
 				//...Start the game
 				ResetGame();
@@ -121,7 +121,7 @@ namespace Homework2_106
 			}
 
 			//If the game is over and you press enter...
-			else if(gameState == GameState.GameOver && kbState.IsKeyDown(Keys.Enter))
+			else if(gameState == GameState.GameOver && SingleKeyPress(Keys.Enter))
 				//...go to the main menu
 				gameState = GameState.Menu;
 
@@ -215,7 +215,7 @@ namespace Homework2_106
 					//Game over text and total score
 					spriteBatch.DrawString(font,
 					"Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level,
-					new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level).X) / 2,
+					new Vector2((GraphicsDevice.Viewport.Width + 5 - font.MeasureString("Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level).X) / 2,
 					(GraphicsDevice.Viewport.Height - font.MeasureString("Game Over\nTotal Score: " + player.TotalScore + "\nFinal Level: " + level).Y) / 2),
 					Color.White);
 
@@ -248,7 +248,6 @@ namespace Homework2_106
 						new Vector2((GraphicsDevice.Viewport.Width - font.MeasureString("Score: " + player.TotalScore).X) / 2, 0), Color.White);
 					break;
 			}
-
 			spriteBatch.End();
 
 			base.Draw(gameTime);
@@ -274,7 +273,7 @@ namespace Homework2_106
 				collectibles.Add(new Collectible(collectableTexture,
 					new Rectangle(rnd.Next(GraphicsDevice.Viewport.Width - 30), rnd.Next(GraphicsDevice.Viewport.Height - 30), 25, 25)));
 			}
-
+            //Generates new Enemies
             enemies.Clear();
             int enemyNumber = rnd.Next(level) + (level/2);
             for(int i = 0; i < enemyNumber; i++)
@@ -312,7 +311,11 @@ namespace Homework2_106
 			if(objToWrap.Y >= GraphicsDevice.Viewport.Height)
 				objToWrap.Y = GraphicsDevice.Viewport.Y;
 		}
-
+        /// <summary>
+        /// Checks to see if this is the first frame a key was pressed
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
 		bool SingleKeyPress(Keys key)
 		{
 			return (kbState.IsKeyDown(key) && !previousKBState.IsKeyDown(key));
